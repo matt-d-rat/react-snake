@@ -29,7 +29,9 @@ module.exports = {
             actions: srcPath + '/actions/',
             components: srcPath + '/components/',
             stores: srcPath + '/stores/',
-            images: srcPath + '/images/'
+            images: srcPath + '/images/',
+            scss: srcPath + '/scss/',
+            fonts: srcPath + '/fonts/'
         }
     },
     module: {
@@ -41,16 +43,6 @@ module.exports = {
             }
         ],
         loaders: [
-            // {
-            //     test: /\.css$/,
-            //     exclude: /node_modules/,
-            //     loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader')
-            // },
-            // {
-            //     test: /\.scss/,
-            //     exclude: /node_modules/,
-            //     loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader!sass-loader?outputStyle=expanded')
-            // },
             {
                 test: /\.css$/,
                 exclude: /node_modules/,
@@ -62,15 +54,32 @@ module.exports = {
                 loader: 'style-loader!css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader!sass-loader?outputStyle=expanded'
             },
             {
-                test: /\.(png|jpg|gif|woff|woff2)$/,
+                test: /\.(png|jpg|gif)$/,
                 loader: 'url-loader?limit=8192'
+            },
+            {
+                test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+            },
+            {
+                test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+            },
+            {
+                test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'url-loader?limit=10000&mimetype=application/octet-stream'
+            },
+            {
+                test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'file'
+            },
+            {
+                test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'url-loader?limit=10000&mimetype=image/svg+xml'
             }
         ]
     },
     postcss: [
         require('autoprefixer')
     ]
-    // plugins: [
-    //     //new ExtractTextPlugin('style.css', { allChunks: true })
-    // ]
 };

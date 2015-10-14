@@ -66,6 +66,7 @@
     "lodash": "^3.10.1",
     "normalize.css": "^3.0.3",
     "q": "^1.4.1",
+    "qanimationframe": "^2.1.4",
     "react": "^0.13.3",
     "react-canvas": "0.0.1",
     "reflux": "^0.2.12",

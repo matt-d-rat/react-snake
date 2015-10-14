@@ -18,30 +18,28 @@ let SnakeStore = Reflux.createStore({
         this.snake = {
             head: null,
             _queue: [],
-            direction: direction,
-            insert: function(xPos, yPos) {
-                this._queue.unshift({ x: xPos, y: yPos });
-                this.head = this._queue[0];
-            },
-            remove: function() {
-                return this._queue.pop();
-            }
+            direction: direction
         };
 
-        
-        this.snake.insert(xPos, yPos);
+        SnakeActions.insert(xPos, yPos);
+        this.trigger(this.snake);
+    },
 
-        console.log(this.snake, xPos, yPos)
+    onInsert: function(xPos, yPos) {
+        this.snake._queue.unshift({ x: xPos, y: yPos });
+        this.snake.head = this.snake._queue[0];
 
-        // console.log('onCreateSnake', this.snake);
+        this.trigger(this.snake);
+    },
+
+    onUpdate: function(newSnake) {
+        this.snake = newSnake;
         this.trigger(this.snake);
     },
 
     onChangeDirection: function(newDirection) {
         this.snake.direction = newDirection;
-
-        // console.log('onChangeDirection', this.snake.direction);
-        this.trigger( this.snake );
+        this.trigger(this.snake);
     }
 });
 

@@ -1,5 +1,21 @@
+@import '../scss/font-face';
+
 :global {
     @import 'normalize.css';
+    
+    @font-face {
+        font-family: 'Nokia';
+        src: url('../fonts/nokia/nokia-medium.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Nokia';
+        src: url('../fonts/nokia/nokia-bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+    }
 
     html,
     body {
@@ -13,10 +29,17 @@
 
     body {
         box-sizing: border-box;
-        background-color: #333;
+        background-color: #222;
         color: #fff;
         font-family: sans-serif;
         font-size: 100%;
         margin: 0;
+    }
+
+    #app {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
     }
 }

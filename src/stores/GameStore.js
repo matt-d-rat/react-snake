@@ -32,14 +32,11 @@ let GameStore = Reflux.createStore({
             }
         }
 
-        //console.log('onCreateGrid', this._grid);
         this.trigger(this._grid);
     },
 
     onSetPos: function(value, xPos, yPos) {
         this._grid[xPos][yPos] = value;
-
-        //console.log('onSetPos', value, xPos, yPos);
         this.trigger(this._grid);
     },
 
@@ -49,7 +46,6 @@ let GameStore = Reflux.createStore({
         let emptyGridPositions = [];
 
         this._grid.forEach(function(row, xPos) {
-
             row.forEach(function(value, yPos) {
                 if(value === TILE_EMPTY) {
                     emptyGridPositions.push({
@@ -61,8 +57,7 @@ let GameStore = Reflux.createStore({
         });
 
         let randomFoodPos = emptyGridPositions[Math.floor(Math.random() * emptyGridPositions.length)];
-
-        //console.log('onCreateFood', randomFoodPos.x, randomFoodPos.y);
+        
         GameActions.setPos(TILE_FOOD, randomFoodPos.x, randomFoodPos.y);
     }
 });

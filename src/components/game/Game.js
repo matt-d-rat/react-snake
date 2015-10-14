@@ -3,12 +3,12 @@
 // Import libraries
 import React from 'react/addons';
 import Q from 'Q';
-import {Surface} from 'react-canvas';
 import keycode from 'keycode';
 
 // Import actions
 import GameActions from 'actions/GameActions';
 import SnakeActions from 'actions/SnakeActions';
+import ScoreActions from 'actions/ScoreActions';
 
 // Import stores
 import GameStore from 'stores/GameStore';
@@ -26,7 +26,9 @@ const DIRECTION_DOWN = 'DOWN';
 const DIRECTION_LEFT = 'LEFT';
 const DIRECTION_RIGHT = 'RIGHT';
 
-const FPS = 5;
+const FPS = 10;
+
+let frames = 0;
 
 class Game extends React.Component {
     constructor(props) {
@@ -61,19 +63,13 @@ class Game extends React.Component {
         document.body.removeEventListener('keydown', this.onKeyDown.bind(this), false);
     }
 
-    componentDidUpdate() {
-        //this.clearCanvas();
-    }
-
     onSnakeUpdate(newSnake) {
-        // console.log('onSnakeUpdate', newSnake)
         this.setState({
             snake: newSnake
         })
     }
 
     onGridUpdate(newGrid) {
-        // console.log('onGridUpdate', newGrid)
         this.setState({
             grid: newGrid
         });
@@ -143,16 +139,16 @@ class Game extends React.Component {
 
         Q.all([
             GameActions.createGrid(TILE_EMPTY, this.props.cols, this.props.rows),
-            SnakeActions.createSnake(DIRECTION_RIGHT, snakePos.x, snakePos.y),
             GameActions.setPos( TILE_SNAKE, snakePos.x, snakePos.y ),
-            GameActions.createFood(this.props.cols, this.props.rows, this.props.tileSize)
+            GameActions.createFood(this.props.cols, this.props.rows, this.props.tileSize),
+            SnakeActions.createSnake(DIRECTION_RIGHT, snakePos.x, snakePos.y)
         ]).then(function(result) {
             this.requestId = this.gameLoop();
         }.bind(this));
     }
 
     start() {
-        this.frames = 0;
+        frames = 0;
 
         if (!this.requestId) {
             this.init();
@@ -172,20 +168,20 @@ class Game extends React.Component {
     }
 
     gameLoop() {
-        this.update();
-        
         let node = React.findDOMNode(this._gameSurface);
-        this.paint(React.findDOMNode(this._gameSurface).getContext('2d'));
 
-        this.requestId = window.requestAnimationFrame(this.gameLoop.bind(this), React.findDOMNode(this._gameSurface));
+        this.update();
+        this.paint(node.getContext('2d'));
+
+        this.requestId = window.requestAnimationFrame(this.gameLoop.bind(this), node);
     }
 
     update() {
-        this.frames++;
+        frames++;
 
         //console.log(this.state.snake.head);
 
-        if(this.frames % FPS === 0 && this.requestId) {
+        if(frames % FPS === 0) {
             // Index 0 is the head of the snake
             let moveX = this.state.snake.head.x;
             let moveY = this.state.snake.head.y;
@@ -208,21 +204,26 @@ class Game extends React.Component {
                     break;
             }
 
-            // Check if snake has colided with a wall or itself
+            // Collision detection - Game Over
             if ( this.didCollideWithWall(moveX, moveY) || this.didCollideWithSnake(moveX, moveY) ) {
                 this.restart();
             }
-            
-            if( this.didEatFood(moveX, moveY) ) {
-                // update score here
-                GameActions.createFood(this.props.cols, this.props.rows, this.props.tileSize);
-            } else {
-                let tail = this.state.snake.remove();
-                GameActions.setPos(TILE_EMPTY, tail.x, tail.y);
-            }
+            // Continue
+            else {
+                if( this.didEatFood(moveX, moveY) ) {
+                    ScoreActions.updateCurrentScore(1);
+                    GameActions.createFood(this.props.cols, this.props.rows, this.props.tileSize);
+                }
+                else {
+                    let tail = this.state.snake._queue.pop();
+
+                    SnakeActions.update(this.state.snake);
+                    GameActions.setPos(TILE_EMPTY, tail.x, tail.y);
+                }
 
                 GameActions.setPos(TILE_SNAKE, moveX, moveY);
-                this.state.snake.insert(moveX, moveY);
+                SnakeActions.insert(moveX, moveY);
+            }
         }
     }
 
@@ -253,19 +254,17 @@ class Game extends React.Component {
     }
 
     paintEmpty(context, xPos, yPos) {
-        context.fillStyle = "#ccc";
+        context.fillStyle = "#bfc800";
         context.fillRect(xPos * this.props.tileSize, yPos * this.props.tileSize, this.props.tileSize, this.props.tileSize);
     }
 
     paintSnake(context, xPos, yPos) {
-        context.fillStyle = "blue";
-        context.strokeStyle = "white";
+        context.fillStyle = "#656d00";
         context.fillRect(xPos * this.props.tileSize, yPos * this.props.tileSize, this.props.tileSize, this.props.tileSize);
-        context.strokeRect(xPos * this.props.tileSize, yPos * this.props.tileSize, this.props.tileSize, this.props.tileSize);
     }
 
     paintFood(context, xPos, yPos) {
-        context.fillStyle = "#0a0";
+        context.fillStyle = "#656d00";
         context.beginPath();
 
         let radius = this.props.tileSize / 2;
@@ -277,11 +276,20 @@ class Game extends React.Component {
     }
 
     render() {
+        let canvasWidth = this.props.cols * this.props.tileSize;
+        let canvasHeight = this.props.rows  * this.props.tileSize;
+
+        let sizingStyle = {
+            width: canvasWidth / 2,
+            height: canvasHeight / 2
+        };
+
         return (
             <canvas ref={(c) => this._gameSurface = c} 
                     className={styles.surface}
-                    width={this.props.cols * this.props.tileSize} 
-                    height={this.props.rows  * this.props.tileSize} />
+                    style={sizingStyle}
+                    width={canvasWidth} 
+                    height={canvasHeight} />
         );
     }
 }
@@ -289,8 +297,8 @@ class Game extends React.Component {
 // Uncomment properties you need
 // Game.propTypes = {};
 Game.defaultProps = {
-    cols: 40,
-    rows: 40,
+    cols: 22,
+    rows: 12,
     tileSize: 15
 };
 

@@ -3,9 +3,15 @@
 import Reflux from 'reflux';
 
 let GameActions = Reflux.createActions({
-    'createGrid': ['completed', 'failed'],
-    'setPos': ['completed', 'failed'],
-    'createFood': ['completed', 'failed']
+    'createGrid': {
+        asyncResult: false
+    },
+    'setPos': {
+        asyncResult: false
+    },
+    'createFood': {
+        asyncResult: false
+    }
 });
 
 export default GameActions;
