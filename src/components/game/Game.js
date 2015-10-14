@@ -173,12 +173,11 @@ class Game extends React.Component {
     }
 
     gameLoop() {
+        this.requestId = window.requestAnimationFrame(this.gameLoop.bind(this));
+        
         let node = React.findDOMNode(this._gameSurface);
-
         this.update();
         this.paint(node.getContext('2d'));
-
-        this.requestId = window.requestAnimationFrame(this.gameLoop.bind(this), node);
     }
 
     update() {
