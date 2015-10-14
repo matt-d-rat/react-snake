@@ -10,9 +10,7 @@ class Score extends React.Component {
         super(props);
 
         this.state = {
-            score: {
-                currentScore: 0
-            }
+            currentScore: 0
         };
     }
 
@@ -28,20 +26,19 @@ class Score extends React.Component {
 
     onUpdate(newScore) {
         this.setState({
-            score: newScore
+            currentScore: newScore.currentScore
         });
     }
 
     render() {
         return (
             <div className={styles.container}>
-                <span className={styles['current-score']}>{this.state.score.currentScore}</span>
+                <span className={styles['current-score']}>{this.state.currentScore}</span>
             </div>
         );
     }
 }
 
-Score.defaultProps = {
-};
+Score.defaultProps = {};
 
 export default Score;

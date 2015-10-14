@@ -7,6 +7,7 @@ const React = require('react/addons');
 const TestUtils = React.addons.TestUtils;
 
 const sd = require('skin-deep');
+const SnakeApp = require('components/snakeApp/SnakeApp');
 const Game = require('components/game/Game');
 
 describe('SnakeApp Component', () => {
@@ -15,7 +16,7 @@ describe('SnakeApp Component', () => {
         vdom;
 
     beforeEach(() => {
-        tree = sd.shallowRender(React.createElement(Game, {}));
+        tree = sd.shallowRender(React.createElement(SnakeApp, {}));
         instance = tree.getMountedInstance();
         vdom = tree.getRenderOutput();
     });
@@ -27,7 +28,7 @@ describe('SnakeApp Component', () => {
     });
 
     it('should render the SnakeApp component', (done) => {
-        expect( TestUtils.isElementOfType(instance, Game) ).to.equal(true);
+        expect(vdom.type).to.equal('div');
         done();
     });
 });

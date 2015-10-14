@@ -37,7 +37,11 @@ class Game extends React.Component {
         this.state = {
             grid: [],
             score: 0,
-            snake: null
+            snake: {
+                head: null,
+                _queue: [],
+                direction: null
+            }
         };
     }
 
@@ -137,7 +141,7 @@ class Game extends React.Component {
             y: Math.floor(this.props.rows / 3)
         };       
 
-        Q.all([
+        return Q.all([
             GameActions.createGrid(TILE_EMPTY, this.props.cols, this.props.rows),
             GameActions.setPos( TILE_SNAKE, snakePos.x, snakePos.y ),
             GameActions.createFood(this.props.cols, this.props.rows, this.props.tileSize),
@@ -163,6 +167,7 @@ class Game extends React.Component {
     }
 
     restart() {
+        ScoreActions.resetCurrentScore();
         this.stop();
         this.start();
     }

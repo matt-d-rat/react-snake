@@ -8,12 +8,9 @@ let ScoreStore = Reflux.createStore({
 
     init: function() {
         this.score = {
-            currentScore: 0
+            currentScore: 0,
+            highscores: []
         };
-    },
-
-    getInitialState: function() {
-        return this.score;
     },
 
     onUpdateCurrentScore: function(points) {

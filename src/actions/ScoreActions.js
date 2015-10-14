@@ -8,6 +8,9 @@ let ScoreActions = Reflux.createActions({
     },
     'resetCurrentScore': {
         asyncResult: false
+    },
+    'addHighScore': {
+        asyncResult: false
     }
 });
 

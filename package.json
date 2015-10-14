@@ -34,6 +34,8 @@
     "eslint-plugin-react": "^3.3.0",
     "extract-text-webpack-plugin": "^0.8.2",
     "file-loader": "^0.8.4",
+    "inject-loader": "^2.0.1",
+    "jsdom": "^6.5.1",
     "karma": "^0.13.9",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^0.2.0",
@@ -47,6 +49,7 @@
     "karma-webpack": "^1.7.0",
     "minimist": "^1.2.0",
     "mocha": "^2.2.5",
+    "mocha-jsdom": "^1.0.0",
     "normalize.css": "^3.0.3",
     "null-loader": "^0.1.1",
     "open": "0.0.5",
@@ -69,6 +72,7 @@
     "qanimationframe": "^2.1.4",
     "react": "^0.13.3",
     "react-canvas": "0.0.1",
+    "react-mixin": "^3.0.0",
     "reflux": "^0.2.12",
     "sass-loader": "^1.0.1"
   }

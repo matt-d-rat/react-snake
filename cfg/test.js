@@ -36,5 +36,12 @@ module.exports = {
   plugins: [
     new webpack.IgnorePlugin(/react-addons/),
     new webpack.IgnorePlugin(/react-dom/)
-  ]
+  ],
+  // node: {
+  //   console: 'empty',
+  //   fs: 'empty',
+  //   net: 'empty',
+  //   tls: 'empty',
+  //   child_process: 'empty'
+  // }
 };

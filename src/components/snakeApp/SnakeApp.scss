@@ -10,10 +10,14 @@
 }
 
 .screen {
-    display: block;
+    display: flex;
+    flex-direction: column;
     position: relative;
     margin: 0 auto;
-    top: 198px;
+    top: 187px;
     height: 140px;
-    width: 172px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 614px;
 }

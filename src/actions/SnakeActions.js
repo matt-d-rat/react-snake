@@ -7,7 +7,7 @@ let SnakeActions = Reflux.createActions({
         asyncResult: false
     },
     'changeDirection': {
-        asyncResult: false
+        asyncResult: true
     },
     'insert': {
         asyncResult: false

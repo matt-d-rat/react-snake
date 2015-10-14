@@ -14,6 +14,10 @@ let SnakeStore = Reflux.createStore({
         };
     },
 
+    getInitialState: function() {
+        return this.snake;
+    },
+
     onCreateSnake: function(direction, xPos, yPos) {
         this.snake = {
             head: null,

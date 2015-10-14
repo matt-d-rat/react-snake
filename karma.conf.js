@@ -19,7 +19,7 @@ module.exports = function(config) {
       'test/loadtests.js': ['webpack', 'sourcemap']
     },
     webpack: webpackCfg,
-    webpackServer: {
+    webpackMiddleware: {
       noInfo: true
     }
   });
