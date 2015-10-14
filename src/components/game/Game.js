@@ -184,10 +184,7 @@ class Game extends React.Component {
     update() {
         frames++;
 
-        //console.log(this.state.snake.head);
-
         if(frames % FPS === 0) {
-            // Index 0 is the head of the snake
             let moveX = this.state.snake.head.x;
             let moveY = this.state.snake.head.y;
 

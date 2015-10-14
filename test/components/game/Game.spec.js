@@ -22,17 +22,28 @@ const DIRECTION_RIGHT = 'RIGHT';
 describe('Game Component', () => {
     let Game,
         component,
-        snakeActionsMock;
+        snakeActionsMock,
+        gameActionsMock;
 
     before((done) => {
+        // Mock out the actions
         snakeActionsMock = {
             createSnake: sinon.stub(),
-            changeDirection: sinon.stub()
-        }
+            changeDirection: sinon.stub(),
+            insert: sinon.stub(),
+            update: sinon.stub()
+        };
+
+        gameActionsMock = {
+            createGrid: sinon.stub(),
+            setPos: sinon.stub(),
+            createFood: sinon.stub()
+        };
 
         Game = GameInjector({
+            'actions/GameActions': gameActionsMock,
             'actions/SnakeActions': snakeActionsMock
-        })
+        });
 
         done();
     })
@@ -44,11 +55,6 @@ describe('Game Component', () => {
 
         // Stubs
         sinon.stub(Game.prototype, 'gameLoop');
-
-        // Use renderIntoDocument instead of shallowRender because currently
-        // componentDidMount lifecycle method does not fire as part of the shallowRender
-        // @see https://github.com/facebook/react/issues/4056
-        component = TestUtils.renderIntoDocument(<Game />);
 
         done();
     });
@@ -69,20 +75,59 @@ describe('Game Component', () => {
     });
 
     describe('Initialisation', () => {
-        it('should create a new game area at the default size', () => {
-            expect(component.props.cols).to.equal(22);
-            expect(component.props.rows).to.equal(12);
-            expect(component.props.tileSize).to.equal(15);
+        beforeEach((done) => {
+            sinon.stub(Game.prototype, 'update');
+
+            // Use renderIntoDocument instead of shallowRender because currently
+            // componentDidMount lifecycle method does not fire as part of the shallowRender
+            // @see https://github.com/facebook/react/issues/4056
+            component = TestUtils.renderIntoDocument(<Game />);
+            done();
         });
 
-        it('should initalise the game and start', () => {
+        afterEach((done) => {
+            Game.prototype.update.restore();
+            done();
+        });
+
+        it('should create a new game area at the default size', (done) => {
+            let expectedWidth = component.props.cols * component.props.tileSize;
+            let expectedHeight = component.props.rows * component.props.tileSize;
+
+            expect(component._gameSurface.props.width).to.equal( expectedWidth );
+            expect(component._gameSurface.props.height).to.equal( expectedHeight );
+
+            expect(component._gameSurface.props.style.width).to.equal( expectedWidth / 2 );
+            expect(component._gameSurface.props.style.height).to.equal( expectedHeight / 2 );
+
+            expect(component.props.tileSize).to.equal(15);
+            done();
+        });
+
+        it('should initalise the game and start', (done) => {
             Game.prototype.start.should.have.been.called;
             Game.prototype.init.should.have.been.called;
             Game.prototype.init.should.have.been.calledAfter(Game.prototype.start);
+            done();
         });
     })
 
     describe('Keyboard controls', () => {
+        beforeEach((done) => {
+            sinon.stub(Game.prototype, 'update');
+
+            // Use renderIntoDocument instead of shallowRender because currently
+            // componentDidMount lifecycle method does not fire as part of the shallowRender
+            // @see https://github.com/facebook/react/issues/4056
+            component = TestUtils.renderIntoDocument(<Game />);
+            done();
+        });
+
+        afterEach((done) => {
+            Game.prototype.update.restore();
+            done();
+        });
+
         describe('AWSD keys', () => {
             it('should update the current direction to `LEFT` on a keydown event from the `a` key', (done) => {
                 component.onKeyDown({key: 'a', keyCode: keycode('a'), which: keycode('a')});
@@ -133,6 +178,21 @@ describe('Game Component', () => {
                 snakeActionsMock.changeDirection.should.have.been.calledWith(DIRECTION_RIGHT)
                 done();
             });
+        });
+    });
+
+    describe('GIVEN a game that has been initialised with a grid 10x10 and a tile size of 1', () => {
+        beforeEach((done) => {
+            // Use renderIntoDocument instead of shallowRender because currently
+            // componentDidMount lifecycle method does not fire as part of the shallowRender
+            // @see https://github.com/facebook/react/issues/4056
+            component = TestUtils.renderIntoDocument(<Game cols={10} rows={10} tileSize={1} />);
+            done();
+        });
+
+        it('should create a new game area at the specified size', (done) => {
+
+            done();
         });
     });
 });
