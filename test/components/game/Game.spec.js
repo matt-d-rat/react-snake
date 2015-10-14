@@ -5,6 +5,7 @@
 
 // Import libraries
 const React = require('react/addons');
+const _ = require('lodash');
 const TestUtils = React.addons.TestUtils;
 const sd = require('skin-deep');
 const ReactCanvas = require('react-canvas');
@@ -12,7 +13,12 @@ const Surface = ReactCanvas.Surface;
 const keycode = require('keycode');
 
 // Create an injector so we can overide the dependendies in Game component
-let GameInjector = require('inject!components/game/Game');
+const Game = require('components/game/Game');
+const GameInjector = require('inject!components/game/Game');
+
+const TILE_EMPTY = 0;
+const TILE_SNAKE = 1;
+const TILE_FOOD = 2;
 
 const DIRECTION_UP = 'UP';
 const DIRECTION_DOWN = 'DOWN';
@@ -20,8 +26,9 @@ const DIRECTION_LEFT = 'LEFT';
 const DIRECTION_RIGHT = 'RIGHT';
 
 describe('Game Component', () => {
-    let Game,
+    let GameWithInjectedDeps,
         component,
+        clock,
         snakeActionsMock,
         gameActionsMock;
 
@@ -40,7 +47,7 @@ describe('Game Component', () => {
             createFood: sinon.stub()
         };
 
-        Game = GameInjector({
+        GameWithInjectedDeps = GameInjector({
             'actions/GameActions': gameActionsMock,
             'actions/SnakeActions': snakeActionsMock
         });
@@ -49,10 +56,6 @@ describe('Game Component', () => {
     })
 
     beforeEach((done) => {
-        // Spies
-        sinon.spy(Game.prototype, 'start');
-        sinon.spy(Game.prototype, 'init');
-
         // Stubs
         sinon.stub(Game.prototype, 'gameLoop');
 
@@ -60,10 +63,6 @@ describe('Game Component', () => {
     });
 
     afterEach((done) => {
-        // Restore spies
-        Game.prototype.start.restore();
-        Game.prototype.init.restore();
-
         // Restore stubs
         Game.prototype.gameLoop.restore();
 
@@ -76,6 +75,11 @@ describe('Game Component', () => {
 
     describe('Initialisation', () => {
         beforeEach((done) => {
+            // Spies
+            sinon.spy(Game.prototype, 'start');
+            sinon.spy(Game.prototype, 'init');
+
+            // Stubs
             sinon.stub(Game.prototype, 'update');
 
             // Use renderIntoDocument instead of shallowRender because currently
@@ -86,6 +90,11 @@ describe('Game Component', () => {
         });
 
         afterEach((done) => {
+            // Restore spies
+            Game.prototype.start.restore();
+            Game.prototype.init.restore();
+
+            // Restore stubs
             Game.prototype.update.restore();
             done();
         });
@@ -114,16 +123,24 @@ describe('Game Component', () => {
 
     describe('Keyboard controls', () => {
         beforeEach((done) => {
+            // Spies
+            sinon.spy(Game.prototype, 'start');
+            sinon.spy(Game.prototype, 'init');
+
+            // Stubs
             sinon.stub(Game.prototype, 'update');
 
-            // Use renderIntoDocument instead of shallowRender because currently
-            // componentDidMount lifecycle method does not fire as part of the shallowRender
-            // @see https://github.com/facebook/react/issues/4056
-            component = TestUtils.renderIntoDocument(<Game />);
+            // Use mocked injected dependencies
+            component = TestUtils.renderIntoDocument(<GameWithInjectedDeps />);
             done();
         });
 
         afterEach((done) => {
+            // Restore spies
+            Game.prototype.start.restore();
+            Game.prototype.init.restore();
+
+            // Restore stubs
             Game.prototype.update.restore();
             done();
         });
@@ -181,17 +198,124 @@ describe('Game Component', () => {
         });
     });
 
-    describe('GIVEN a game that has been initialised with a grid 10x10 and a tile size of 1', () => {
+    describe('Gameplay', () => {
+        let snakePosition = {x: 0, y: 0};
+        let foodPosition =  {x: 1, y: 0};
+
+        function resetGrid() {
+            component.state.grid.forEach((row, xPos) => {
+                row.forEach(function(col, yPos) {
+                    component.state.grid[xPos][yPos] = TILE_EMPTY;
+                });
+            });
+        }
+
         beforeEach((done) => {
+            // Stubs
+            sinon.stub(Game.prototype, 'start');
+
+            // Spies
+            sinon.spy(Game.prototype, 'didEatFood');
+            sinon.spy(Game.prototype, 'didCollideWithWall');
+            sinon.spy(Game.prototype, 'didCollideWithSnake');
+            sinon.spy(Game.prototype, 'restart');
+
             // Use renderIntoDocument instead of shallowRender because currently
             // componentDidMount lifecycle method does not fire as part of the shallowRender
             // @see https://github.com/facebook/react/issues/4056
-            component = TestUtils.renderIntoDocument(<Game cols={10} rows={10} tileSize={1} />);
+            component = TestUtils.renderIntoDocument(<Game cols={4} rows={1} tileSize={1} />);
+
+            // Init the component then find the snake position and food position on the grid
+            // Note: food position is always random
+            component.init().then(() => {
+                resetGrid();
+
+                // Set the snake and food to a predetermined position for testing
+                component.state.snake.head = snakePosition;
+                component.state.grid[snakePosition.x][snakePosition.y] = TILE_EMPTY;
+                component.state.grid[foodPosition.x][foodPosition.y] = TILE_FOOD;
+
+                done();
+            });
+        });
+
+        afterEach((done) => {
+            component = undefined;
+
+            // Restore stubs
+            Game.prototype.start.restore();
+
+            // Restore spies
+            Game.prototype.didEatFood.restore();
+            Game.prototype.didCollideWithWall.restore();
+            Game.prototype.didCollideWithSnake.restore();
+            Game.prototype.restart.restore();
+
             done();
         });
 
-        it('should create a new game area at the specified size', (done) => {
+        it('should move the snake to the correct grid position based on it\'s current direction', (done) => {
+            component.frames = 9; // Advance to the next frame (component.frames++ % FPS)
+            component.update();
 
+            expect(component.state.snake.direction).to.equal(DIRECTION_RIGHT)
+            expect(component.state.snake.head.x).to.equal(snakePosition.x + 1);
+            expect(component.state.snake.head.y).to.equal(snakePosition.y);
+
+            done();
+        });
+
+        it('should detect when the snake \'eats\' food and increase the length of the snake by 1', (done) => {
+            let beforeSnakeLength = component.state.snake._queue.length;
+
+            // Advance to the next frame (component.frames++ % FPS)
+            component.frames = 9;
+            component.update();
+
+            component.didEatFood.should.have.been.called;
+            expect(component.didEatFood.returnValues[0]).to.equal(true);
+            expect(component.state.snake._queue.length).to.equal(beforeSnakeLength + 1);
+
+            done();
+        });
+
+        it('should detect when the snake collides with a wall and restart the game', (done) => {
+            component.state.snake.direction = DIRECTION_UP;
+
+            // Advance to the next frame (component.frames++ % FPS)
+            component.frames = 9;
+            component.update();
+
+            component.didCollideWithWall.should.have.been.called;
+            component.restart.should.have.been.called;
+            done();
+        });
+
+        it('should detect when the snake collides with itself and restart the game', (done) => {
+            // Snake is travelling right
+            component.state.snake.direction = DIRECTION_RIGHT;
+
+            // Advance to the next frame (component.frames++ % FPS)
+            component.frames = 9;
+            component.update();
+
+            // Check the Snake has now eaten food and has a body length of 2
+            expect(component.state.snake._queue.length).to.equal(2);
+
+            // Change direction to back on itself
+            component.state.snake.direction = DIRECTION_LEFT;
+
+            // Advance to the next frame (component.frames++ % FPS)
+            component.frames = 9;
+            component.update();
+
+            component.didCollideWithSnake.should.have.been.called;
+
+            // Advance to the next frame (component.frames++ % FPS)
+            component.frames = 9;
+            component.update();
+
+            component.restart.should.have.been.called;
             done();
         });
     });

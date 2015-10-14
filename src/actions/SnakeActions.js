@@ -4,16 +4,16 @@ import Reflux from 'reflux';
 
 let SnakeActions = Reflux.createActions({
     'createSnake': {
-        asyncResult: false
+        sync: true
     },
     'changeDirection': {
-        asyncResult: true
+        sync: true
     },
     'insert': {
-        asyncResult: false
+        sync: true
     },
     'update': {
-        asyncResult: false
+        sync: true
     }
 });
 

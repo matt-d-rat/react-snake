@@ -4,13 +4,13 @@ import Reflux from 'reflux';
 
 let GameActions = Reflux.createActions({
     'createGrid': {
-        asyncResult: false
+        sync: true
     },
     'setPos': {
-        asyncResult: false
+        sync: true
     },
     'createFood': {
-        asyncResult: false
+        sync: true
     }
 });
 

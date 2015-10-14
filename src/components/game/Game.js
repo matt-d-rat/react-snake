@@ -28,11 +28,11 @@ const DIRECTION_RIGHT = 'RIGHT';
 
 const FPS = 10;
 
-let frames = 0;
-
 class Game extends React.Component {
     constructor(props) {
         super(props);
+        
+        this.frames = 0;
 
         this.state = {
             grid: [],
@@ -152,7 +152,7 @@ class Game extends React.Component {
     }
 
     start() {
-        frames = 0;
+        this.frames = 0;
 
         if (!this.requestId) {
             this.init();
@@ -182,9 +182,9 @@ class Game extends React.Component {
     }
 
     update() {
-        frames++;
+        this.frames++;
 
-        if(frames % FPS === 0) {
+        if(this.frames % FPS === 0) {
             let moveX = this.state.snake.head.x;
             let moveY = this.state.snake.head.y;
 

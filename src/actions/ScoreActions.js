@@ -4,13 +4,13 @@ import Reflux from 'reflux';
 
 let ScoreActions = Reflux.createActions({
     'updateCurrentScore': {
-        asyncResult: false
+       sync: true
     },
     'resetCurrentScore': {
-        asyncResult: false
+        sync: true
     },
     'addHighScore': {
-        asyncResult: false
+        sync: true
     }
 });
 
