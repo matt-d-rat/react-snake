@@ -28,8 +28,9 @@
     }
 
     body {
+        background: #222 url('../images/city-bg.jpg') no-repeat center center;
+        background-size: cover;
         box-sizing: border-box;
-        background-color: #222;
         color: #fff;
         font-family: sans-serif;
         font-size: 100%;
